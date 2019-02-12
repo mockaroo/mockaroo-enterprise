@@ -141,19 +141,27 @@ MAIL_AUTHENTICATION=(plain|login|cram_md5)
 MAIL_ENABLE_STARTTLS_AUTO=(true|false)
 ```
 
+If your mail server doesn't require authentication, you can remove the following variables from your app.env and worker.env files:
+
+```
+MAIL_PASSWORD
+MAIL_USERNAME
+```
+
 If you're familiar with Ruby on Rails, here's how the environment variables are applied to ActionMailer's SMTP settings:
 
 ```ruby
 config.action_mailer.smtp_settings = {
-    :user_name            => ENV['SENDGRID_USERNAME'] || ENV['MAIL_USERNAME'],
-    :password             => ENV['SENDGRID_PASSWORD'] || ENV['MAIL_PASSWORD'],
-    :address              => ENV['MAIL_HOST'],
-    :port                 => ENV.fetch('MAIL_PORT', 587).to_i,
-    :domain               => ENV['MOCKAROO_DOMAIN'],
-    :authentication       => ENV.fetch('MAIL_AUTHENTICATION', nil).try(:to_sym),
-    :format               => :html,
-    :enable_starttls_auto => ENV.fetch('MAIL_ENABLE_STARTTLS_AUTO', true)
+  :address              => ENV['MAIL_HOST'],
+  :port                 => ENV.fetch('MAIL_PORT', 587).to_i,
+  :domain               => ENV['MOCKAROO_DOMAIN'],
+  :format               => :html,
+  :enable_starttls_auto => ENV.fetch('MAIL_ENABLE_STARTTLS_AUTO', true)
 }
+
+username = ENV['SENDGRID_USERNAME'] || ENV['MAIL_USERNAME']
+password = ENV['SENDGRID_PASSWORD'] || ENV['MAIL_PASSWORD']
+authentication = ENV['MAIL_AUTHENTICATION']
 ```
 
 See [ActionMailer Basics](https://guides.rubyonrails.org/action_mailer_basics.html) for more information

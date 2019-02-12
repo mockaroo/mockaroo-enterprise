@@ -35,7 +35,7 @@ Create an Amazon S3 bucket.  You'll configure the name as an environment variabl
 Run redis as a docker image:
 
 ```
-docker run --name redis -p 6379:6379 redis
+docker run -d --name redis -p 6379:6379 redis
 ```
 
 ### App Container
@@ -90,7 +90,7 @@ docker run --env-file app.env mockaroo-enterprise rake db:schema:load && rake db
 Finally, run the following to start the mockaroo web app on port 8080 (or any port you like):
 
 ```
-docker run --name mockaroo --env-file app.env -p 8080:80 mockaroo-enterprise
+docker run -d --name mockaroo --env-file app.env -p 8080:80 mockaroo/mockaroo-enterprise:1.0-alpha.2
 ```
 
 ### Worker Container
@@ -115,6 +115,12 @@ REDIS_CONCURRENCY=(2 x #workers + 4)
 REDIS_SERVER_CONNECTIONS=(2 x #workers + 2)
 ```
 
+To start the worker container, run:
+
+```
+docker run -d --name worker --env-file worker.env mockaroo/mockaroo-enterprise:1.0-alpha.2
+```
+
 ### SSL
 
 To get SSL support, you'll need to put a web server in front of Mockaroo.  I suggest using nginx.
@@ -125,6 +131,32 @@ Mockaroo streams small datasets to the browser.  To make this work, set the foll
 proxy_buffering off; # enabled response streaming
 client_max_body_size 20M; # enable large form posts (needed when the user creates a schema with many columns)
 ```
+
+### Using a mail server other than Sparkpost
+
+You can add the following environment variables to your app.env and worker.env files to set the `authentication` and `enable_starttls_auto` configs for ActionMailer:
+
+```
+MAIL_AUTHENTICATION=(plain|login|cram_md5)
+MAIL_ENABLE_STARTTLS_AUTO=(true|false)
+```
+
+If you're familiar with Ruby on Rails, here's how the environment variables are applied to ActionMailer's SMTP settings:
+
+```ruby
+config.action_mailer.smtp_settings = {
+    :user_name            => ENV['SENDGRID_USERNAME'] || ENV['MAIL_USERNAME'],
+    :password             => ENV['SENDGRID_PASSWORD'] || ENV['MAIL_PASSWORD'],
+    :address              => ENV['MAIL_HOST'],
+    :port                 => ENV.fetch('MAIL_PORT', 587).to_i,
+    :domain               => ENV['MOCKAROO_DOMAIN'],
+    :authentication       => ENV.fetch('MAIL_AUTHENTICATION', nil).try(:to_sym),
+    :format               => :html,
+    :enable_starttls_auto => ENV.fetch('MAIL_ENABLE_STARTTLS_AUTO', true)
+}
+```
+
+See [ActionMailer Basics](https://guides.rubyonrails.org/action_mailer_basics.html) for more information
 
 ## Upgrades
 

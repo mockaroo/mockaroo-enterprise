@@ -55,6 +55,7 @@ S3_BUCKET=(the name of the S3 bucket assigned to mockaroo)
 MAIL_PASSWORD=(your sparkpost mail api key)
 MOCKAROO_ADMIN_EMAIL=(an email address where errors and daily reports should be sent)
 MOCKAROO_DOMAIN=(the domain name on which your hosting mockaroo)  
+MOCKAROO_MAIL_FROM=(optional, the email address used when Mockaroo sends automated emails, defaults to "no-reply@{MOCKAROO_DOMAIN}")
 
 # In most cases you can leave these unchanged:
 RAILS_ENV=production

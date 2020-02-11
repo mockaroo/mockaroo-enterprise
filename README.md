@@ -85,13 +85,13 @@ MOCKAROO_WORKERS=web=1
 ... then, run following to initialize the database ...
 
 ```
-docker run --env-file app.env mockaroo-enterprise rake db:schema:load && rake db:seed
+docker run --env-file app.env mockaroo/mockaroo-enterprise:1.0.0 rake db:reset && rake db:seed
 ```
 
 Finally, run the following to start the mockaroo web app on port 8080 (or any port you like):
 
 ```
-docker run -d --name mockaroo --env-file app.env -p 8080:80 mockaroo/mockaroo-enterprise:1.0-alpha.2
+docker run -d --name mockaroo --env-file app.env -p 8080:80 mockaroo/mockaroo-enterprise:1.0.0
 ```
 
 ### Worker Container
@@ -119,7 +119,7 @@ REDIS_SERVER_CONNECTIONS=(2 x #workers + 2)
 To start the worker container, run:
 
 ```
-docker run -d --name worker --env-file worker.env mockaroo/mockaroo-enterprise:1.0-alpha.2
+docker run -d --name worker --env-file worker.env mockaroo/mockaroo-enterprise:1.0.0
 ```
 
 ### SSL
@@ -172,8 +172,8 @@ See [ActionMailer Basics](https://guides.rubyonrails.org/action_mailer_basics.ht
 When an upgrade is available, grab the latest mockaroo-enterprise docker image, then run:
 
 ```
-docker run app.env mockaroo-enterprise rake db:migrate
+docker run app.env mockaroo/mockaroo-enterprise:(version) rake db:migrate
 ```
 
-The, redeploy your app and worker containers
+Then, redeploy your app and worker containers
 

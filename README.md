@@ -169,6 +169,22 @@ authentication = ENV['MAIL_AUTHENTICATION']
 
 See [ActionMailer Basics](https://guides.rubyonrails.org/action_mailer_basics.html) for more information
 
+## NGINX
+
+You'll most likely want to put a webserver like NGINX in front of mockaroo so that users can connect securely over SSL.  If you use nginx, here are some options that you should enable:
+
+```
+proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+proxy_set_header Host $http_host;
+proxy_set_header X-Forwarded-Proto $scheme;
+proxy_redirect off;
+proxy_send_timeout 1000s;   # disable timeout - protects against complicated schemas timing out before flushing
+proxy_read_timeout 1000s;   # disable timeout - protects against complicated schemas timing out before flushing
+proxy_buffering off;        # enabled response streaming
+
+client_max_body_size 20M;
+```
+
 ## Upgrades
 
 When an upgrade is available, grab the latest mockaroo-enterprise docker image, then run:

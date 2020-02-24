@@ -28,7 +28,9 @@ Create a postgres database on Amazon RDS called "mockaroo".  Remember the userna
 
 ### Amazon S3 Bucket
 
-Create an Amazon S3 bucket.  You'll configure the name as an environment variable later along with your aws key and secret.
+Create an Amazon S3 bucket.  You'll configure the name as an environment variable later.
+In order for Mockaroo to upload files to this bucket, you can either configure AWS_ACCESS_KEY and AWS_SECRET_KEY environment variables (See "App Container" below), or assign an IAM role to the EC2 instance(s) on which Mockaroo run that can write to the S3 bucket.  Here a guide that describes how to do this: [Enable S3 access from EC2 by IAM role](https://cloud-gc.readthedocs.io/en/latest/chapter03_advanced-tutorial/iam-role.html)
+
 
 ### Redis Docker Image
 
@@ -49,8 +51,8 @@ REDIS_WORKERS=(The number of data generation workers you are running.  Can be fr
 DB_USERNAME=(database username)
 DB_PASSWORD=(database password)
 DB_HOSTNAME=(hostname of your amazon rds instance)
-AWS_ACCESS_KEY=(your aws key)
-AWS_SECRET_KEY=(your aws secret)
+AWS_ACCESS_KEY=(your aws key - alternatively you can omit this and grant mockaroo access to your bucket via IAM)
+AWS_SECRET_KEY=(your aws secret - alternatively you can omit this and grant mockaroo access to your bucket via IAM)
 S3_BUCKET=(the name of the S3 bucket assigned to mockaroo)
 MAIL_PASSWORD=(your sparkpost mail api key)
 MOCKAROO_ADMIN_EMAIL=(an email address where errors and daily reports should be sent)

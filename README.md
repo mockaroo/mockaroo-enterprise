@@ -31,6 +31,13 @@ Create a postgres database on Amazon RDS called "mockaroo".  Remember the userna
 Create an Amazon S3 bucket.  You'll configure the name as an environment variable later.
 In order for Mockaroo to upload files to this bucket, you can either configure AWS_ACCESS_KEY and AWS_SECRET_KEY environment variables (See "App Container" below), or assign an IAM role to the EC2 instance(s) on which Mockaroo run that can write to the S3 bucket.  Here a guide that describes how to do this: [Enable S3 access from EC2 by IAM role](https://cloud-gc.readthedocs.io/en/latest/chapter03_advanced-tutorial/iam-role.html)
 
+### Amazon SES for Email
+
+Mockaroo sends emails when users need to reset their password or have a file ready to download. We recommend you use Amazon SES to send emails. To set up SES:
+
+1. Under Identity Management > Domains, add the domain on which Mockaroo will be hosted.  You will later set this as the MOCKAROO_DOMAIN environment variables.
+2. Under Identity Management > Emails, add a "no-reply@(your domain)" email address.
+3. Under Email Sending > SMTP Settings, create your SMTP credentials.  You will use these to set the MAIL_HOST, MAIL_USERNAME, and MAIL_PASSWORD environment variables.
 
 ### Redis Docker Image
 
@@ -54,10 +61,12 @@ DB_HOSTNAME=(hostname of your amazon rds instance)
 AWS_ACCESS_KEY=(your aws key - alternatively you can omit this and grant mockaroo access to your bucket via IAM)
 AWS_SECRET_KEY=(your aws secret - alternatively you can omit this and grant mockaroo access to your bucket via IAM)
 S3_BUCKET=(the name of the S3 bucket assigned to mockaroo)
-MAIL_PASSWORD=(your sparkpost mail api key)
 MOCKAROO_ADMIN_EMAIL=(an email address where errors and daily reports should be sent)
 MOCKAROO_DOMAIN=(the domain name on which your hosting mockaroo)  
-MOCKAROO_MAIL_FROM=(optional, the email address used when Mockaroo sends automated emails, defaults to "no-reply@{MOCKAROO_DOMAIN}")
+MOCKAROO_MAIL_FROM=(the email address used when Mockaroo sends automated emails, defaults to "no-reply@{MOCKAROO_DOMAIN}")
+MAIL_HOST=(your SES email host, typically something like "email-smtp.us-west-2.amazonaws.com")
+MAIL_USERNAME=(your SES email username)
+MAIL_PASSWORD=(your SES email password)
 
 # In most cases you can leave these unchanged:
 RAILS_ENV=production
@@ -65,9 +74,7 @@ RACK_ENV=production
 DB_ADAPTER=postgresql
 DB_NAME=mockaroo
 DB_PORT=5432
-MAIL_HOST=smtp.sparkpostmail.com
 MAIL_PORT=587
-MAIL_USERNAME=SMTP_Injection
 PORT=80
 MOCKAROO_QUICK_DOWNLOAD_LIMIT=10000
 MOCKAROO_ENTERPRISE=true
@@ -123,51 +130,6 @@ To start the worker container, run:
 ```
 docker run -d --name worker --env-file worker.env mockaroo/mockaroo-enterprise:1.0.0
 ```
-
-### SSL
-
-To get SSL support, you'll need to put a web server in front of Mockaroo.  I suggest using nginx.
-
-Mockaroo streams small datasets to the browser.  To make this work, set the following configs in nginx:
-
-```
-proxy_buffering off; # enabled response streaming
-client_max_body_size 20M; # enable large form posts (needed when the user creates a schema with many columns)
-```
-
-### Using a mail server other than Sparkpost
-
-You can add the following environment variables to your app.env and worker.env files to set the `authentication` and `enable_starttls_auto` configs for ActionMailer:
-
-```
-MAIL_AUTHENTICATION=(plain|login|cram_md5)
-MAIL_ENABLE_STARTTLS_AUTO=(true|false)
-```
-
-If your mail server doesn't require authentication, you can remove the following variables from your app.env and worker.env files:
-
-```
-MAIL_PASSWORD
-MAIL_USERNAME
-```
-
-If you're familiar with Ruby on Rails, here's how the environment variables are applied to ActionMailer's SMTP settings:
-
-```ruby
-config.action_mailer.smtp_settings = {
-  :address              => ENV['MAIL_HOST'],
-  :port                 => ENV.fetch('MAIL_PORT', 587).to_i,
-  :domain               => ENV['MOCKAROO_DOMAIN'],
-  :format               => :html,
-  :enable_starttls_auto => ENV.fetch('MAIL_ENABLE_STARTTLS_AUTO', true)
-}
-
-username = ENV['SENDGRID_USERNAME'] || ENV['MAIL_USERNAME']
-password = ENV['SENDGRID_PASSWORD'] || ENV['MAIL_PASSWORD']
-authentication = ENV['MAIL_AUTHENTICATION']
-```
-
-See [ActionMailer Basics](https://guides.rubyonrails.org/action_mailer_basics.html) for more information
 
 ## NGINX
 

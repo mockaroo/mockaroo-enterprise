@@ -8,7 +8,7 @@ Mockaroo requires the following cloud services:
 
 * Amazon RDS (Postgres)
 * Amazon S3
-* Sparkpost (optional)
+* Amazone SES (optional)
 
 Mockaroo also requires redis, which can be installed via the redis docker image.
 

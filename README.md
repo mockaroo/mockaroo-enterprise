@@ -16,7 +16,9 @@ Mockaroo also requires redis, which can be installed via the redis docker image.
 
 The Mockaroo docker image is distributed via Amazon's Elastic Container Eegistry (ECR).  The URI for the image is:
 
+```
 622045361486.dkr.ecr.us-west-2.amazonaws.com/mockaroo-enterprise
+```
 
 ## Setup
 

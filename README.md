@@ -49,7 +49,7 @@ docker run -d --name redis -p 6379:6379 redis
 
 ### App Container
 
-To run the app and api services, first creating an app.env file...
+To run the app and api services, the first step is to create an app.env file...
 
 ```
 # You'll need to configure these with your own values:

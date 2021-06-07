@@ -1,4 +1,4 @@
-# Setting up Mockaroo Enterprise on Docker
+# Setting up Mockaroo Enterprise
 
 Mockaroo can be installed in your private AWS cloud as a docker image.  [Contact support for pricing.](https://mockaroo.com/comments/new)
 
@@ -29,6 +29,47 @@ Mockaroo provides three types of services:
 * worker - Data generation workers - When we need to generate large volumes of data quickly, this is what we'll scale
 
 I suggest running at least 2 separate docker containers: one for app and api, and one for workers.
+
+### Pulling the image from Amazon ECR
+
+Once the Mockaroo Enterprise repo has been shared with your AWS account, you'll need to ensure that the IAM user that you'll be using to pull the image has the required permissions.  These can be granted by applying the following IAM policy to a role to which the user has been assigned:
+
+```
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "ecr:GetAuthorizationToken",
+        "ecr:BatchCheckLayerAvailability",
+        "ecr:GetDownloadUrlForLayer",
+        "ecr:BatchGetImage",
+        "ecr:DescribeImages"
+      ],
+      "Resource": "arn:aws:ecr:us-west-2:622045361486:repository/mockaroo-enterprise"
+    }
+  ]
+ }
+```
+
+Once the user has been given the rights above, you can pull the Mockaroo Enterprise image using the following command:
+
+```
+aws ecr get-login-password --region us-west-2 | docker login --password-stdin --username AWS 622045361486.dkr.ecr.us-west-2.amazonaws.com/mockaroo-enterprise:latest
+```
+
+This will authenticate against the ECR repo with docker CLI by injecting an ECR token into docker from the output of the AWS CLI.  You should see the following output:
+
+```
+Login Succeeded
+```
+
+Then, pull the docker image:
+
+```
+docker pull 622045361486.dkr.ecr.us-west-2.amazonaws.com/mockaroo-enterprise:latest
+```
 
 ### Amazon RDS
 

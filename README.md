@@ -143,7 +143,7 @@ MOCKAROO_WORKERS=web=1
 ... then, run following to initialize the database ...
 
 ```
-docker run --env-file app.env mockaroo/mockaroo-enterprise:2.0.0 rake db:reset && rake db:seed
+docker run --env-file app.env mockaroo/mockaroo-enterprise:2.0.0 rake db:create && rake db:schema:load && rake db:seed
 ```
 
 Finally, run the following to start the mockaroo web app on port 8080 (or any port you like):

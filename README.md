@@ -22,13 +22,12 @@ The Mockaroo docker image is distributed via Amazon's Elastic Container Eegistry
 
 ## Setup
 
-Mockaroo provides three types of services:
+Mockaroo provides two types of services:
 
 * app - The web front-end
-* api - The REST api
 * worker - Data generation workers - When we need to generate large volumes of data quickly, this is what we'll scale
 
-I suggest running at least 2 separate docker containers: one for app and api, and one for workers.
+I suggest running at least 2 separate docker containers: one for the app and one for workers.
 
 ### Pulling the image from Amazon ECR
 
@@ -71,6 +70,21 @@ Then, pull the docker image:
 docker pull 622045361486.dkr.ecr.us-west-2.amazonaws.com/mockaroo-enterprise:latest
 ```
 
+### Amazon ElastiCache
+
+Mockaroo uses Redis for caching content and queuing data generation jobs.  If you're using AWS the easiest way to provide Redis to Mockaroo is to create a Redis cluster using Amazon ElasticCache.
+
+* Be sure to create the cluster in the same VPC where the EC2 instances running Mockaroo will reside.
+* You can use a very small instance type as Mockaroo does not send much traffic to Redis. For example, cache.t2.small.
+
+As an alternative, you can also run Redis natively or using docker if you don't want to use ElastiCache.
+
+To run Redis as a docker image:
+
+```
+docker run -d --name redis -p 6379:6379 redis
+```
+
 ### Amazon RDS
 
 Create a postgres database on Amazon RDS called "mockaroo".  Remember the username and password.  You'll need to configure those as environment variables later.
@@ -87,14 +101,6 @@ Mockaroo sends emails when users need to reset their password or have a file rea
 1. Under Identity Management > Domains, add the domain on which Mockaroo will be hosted.  You will later set this as the MOCKAROO_DOMAIN environment variables.
 2. Under Identity Management > Emails, add a "no-reply@(your domain)" email address.
 3. Under Email Sending > SMTP Settings, create your SMTP credentials.  You will use these to set the MAIL_HOST, MAIL_USERNAME, and MAIL_PASSWORD environment variables.
-
-### Redis Docker Image
-
-Run redis as a docker image:
-
-```
-docker run -d --name redis -p 6379:6379 redis
-```
 
 ### App Container
 
@@ -143,13 +149,13 @@ MOCKAROO_WORKERS=web=1
 ... then, run following to initialize the database ...
 
 ```
-docker run --env-file app.env mockaroo/mockaroo-enterprise:2.0.0 rake db:create && rake db:schema:load && rake db:seed
+docker run --env-file app.env mockaroo/mockaroo-enterprise rake db:create && rake db:schema:load && rake db:seed
 ```
 
 Finally, run the following to start the mockaroo web app on port 8080 (or any port you like):
 
 ```
-docker run -d --name mockaroo --env-file app.env -p 8080:80 mockaroo/mockaroo-enterprise:2.0.0
+docker run -d --name mockaroo --env-file app.env -p 8080:80 mockaroo/mockaroo-enterprise
 ```
 
 ### Worker Container
@@ -177,7 +183,7 @@ REDIS_SERVER_CONNECTIONS=(2 x #workers + 2)
 To start the worker container, run:
 
 ```
-docker run -d --name worker --env-file worker.env mockaroo/mockaroo-enterprise:2.0.0
+docker run -d --name worker --env-file worker.env mockaroo/mockaroo-enterprise
 ```
 
 ## NGINX

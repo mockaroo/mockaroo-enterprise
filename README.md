@@ -130,7 +130,7 @@ DB_ADAPTER=postgresql
 DB_NAME=mockaroo
 DB_PORT=5432
 MAIL_PORT=587
-PORT=80
+PORT=3000
 MOCKAROO_QUICK_DOWNLOAD_LIMIT=10000
 MOCKAROO_ENTERPRISE=true
 MOCKAROO_ALLOW_ANONYMOUS_ACCESS=true
@@ -152,10 +152,10 @@ MOCKAROO_WORKERS=web=1
 docker run --env-file app.env mockaroo/mockaroo-enterprise rake db:create && rake db:schema:load && rake db:seed
 ```
 
-Finally, run the following to start the mockaroo web app on port 8080 (or any port you like):
+Finally, run the following to start the mockaroo web app on port 3000 (or any port you like):
 
 ```
-docker run -d --name mockaroo --env-file app.env -p 8080:80 mockaroo/mockaroo-enterprise
+docker run -d --name mockaroo --env-file app.env -p 3000:3000 mockaroo/mockaroo-enterprise
 ```
 
 ### Worker Container
@@ -216,7 +216,7 @@ To configure NGINX, create a file called nginx.conf with the following contents:
 
 ```
 upstream mockaroo {
-  server localhost:8080;
+  server localhost:3000;
 }
 
 server {

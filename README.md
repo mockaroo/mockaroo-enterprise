@@ -186,21 +186,107 @@ To start the worker container, run:
 docker run -d --name worker --env-file worker.env mockaroo/mockaroo-enterprise
 ```
 
-## NGINX
+## Web Server
 
-You'll most likely want to put a webserver like NGINX in front of mockaroo so that users can connect securely over SSL.  If you use nginx, here are some options that you should enable:
+In order to serve traffic from Mockaroo securely, you need to put a web server in front of Mockaroo. Here we offer two choices:
+
+- NGINX
+- AWS API Gateway
+
+Before continuing, ensure that you have created DNS A records for the domain on which you want to host Mockaroo.  For example,
+if the domain you want to use is mockaroo.my-enterprise.com, create A records for the following domains that point to the IP address
+on which Mockaroo is hosted:
 
 ```
-proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-proxy_set_header Host $http_host;
-proxy_set_header X-Forwarded-Proto $scheme;
-proxy_redirect off;
-proxy_send_timeout 1000s;   # disable timeout - protects against complicated schemas timing out before flushing
-proxy_read_timeout 1000s;   # disable timeout - protects against complicated schemas timing out before flushing
-proxy_buffering off;        # enabled response streaming
-
-client_max_body_size 20M;
+mockaroo.my-enterprise.com
+api.mockaroo.my-enterprise.com
+my.api.mockaroo.my-enterprise.com
 ```
+
+### NGINX
+
+To install NGINX on Ubuntu 18, run:
+
+```
+sudo apt update
+sudo apt install nginx
+```
+
+To configure NGINX, create a file called nginx.conf with the following contents:
+
+```
+upstream mockaroo {
+  server localhost:8080;
+}
+
+server {
+  listen 443 ssl http2;
+  listen [::]:443 ssl http2;
+  
+  # You will need to change each occurrence of "mockaroo.my-enterprise.com" below to your custom domain for mockaroo
+  server_name mockaroo.my-enterprise.com;
+  server_name api.mockaroo.my-enterprise.com;
+  server_name my.api.mockaroo.my-enterprise.com;
+  
+  proxy_set_header Host $http_host;
+  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+  proxy_set_header X-Forwarded-Proto $scheme;
+  proxy_redirect off;
+  proxy_send_timeout 1000s;   # disable timeout - protects against complicated schemas timing out before flushing
+  proxy_read_timeout 1000s;   # disable timeout - protects against complicated schemas timing out before flushing
+  proxy_buffering off;        # enabled response streaming
+  client_max_body_size 20M;
+  keepalive_timeout 10;
+
+  location / {
+    proxy_pass http://mockaroo;
+  }
+}
+```
+
+Then, link the site and reload nginx:
+
+```
+sudo ln -s $(pwd)/nginx.conf /etc/nginx/sites-enabled/mockaroo
+sudo systemctl reload nginx
+```
+
+#### TLS
+
+You can use certbot to provision a free TLS certificate for Mockaroo. Installation steps may differ depending on your OS.  For Ubuntu 18, run:
+
+```
+sudo snap install core; sudo snap refresh core
+sudo snap install --classic certbot
+sudo ln -s /snap/bin/certbot /usr/bin/certbot
+sudo certbot --nginx
+```
+
+Then, when prompted, generate a certificate for all of the sites listed.
+
+To ensure that certs are automatically renewed every 90 days, add a cron task by running:
+
+```
+crontab -e
+```
+
+And then pasting the following:
+
+```
+43 6 * * * certbot renew --post-hook "sudo systemctl restart nginx"
+```
+
+### AWS API Gateway
+
+API Gateway can be used in place of NGINX. You can also use Amazon Certificate Manager to provision the TLS certificate.  When configuring API Gateway, be sure to set up services for all 3 custom domains:
+
+mockaroo.my-enterprise.com
+api.mockaroo.my-enterprise.com
+my.api.mockaroo.my-enterprise.com
+
+And use a single catch-all route to forward requests on any method to the EC2 instance running Mockaroo:
+
+/{proxy+} => /{proxy}
 
 ## Upgrades
 

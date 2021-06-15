@@ -276,17 +276,13 @@ And then pasting the following:
 43 6 * * * certbot renew --post-hook "sudo systemctl restart nginx"
 ```
 
-### AWS API Gateway
+## Limiting Sign Ups to Certain Email Domains
 
-API Gateway can be used in place of NGINX. You can also use Amazon Certificate Manager to provision the TLS certificate.  When configuring API Gateway, be sure to set up services for all 3 custom domains:
+To limit signups to certain email domains, add an environment variable called `MOCKAROO_VALID_ACCOUNT_DOMAINS` to your app.env file. The value should be a comma delimited list of email domains to accept (without spaces between the values). For example:
 
-mockaroo.my-enterprise.com
-api.mockaroo.my-enterprise.com
-my.api.mockaroo.my-enterprise.com
-
-And use a single catch-all route to forward requests on any method to the EC2 instance running Mockaroo:
-
-/{proxy+} => /{proxy}
+```
+MOCKAROO_VALID_ACCOUNT_DOMAINS=domain.com,mydomain.com
+```
 
 ## Upgrades
 

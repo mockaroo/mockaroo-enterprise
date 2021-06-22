@@ -14,9 +14,9 @@ Mockaroo requires the following cloud services:
 
 Mockaroo also requires the following 3rd party software:
 
-* Redis
-* Postgres
-* An email provider
+* Redis v6
+* Postgres v13
+* An email service such as Amazon SES or Sendgrid
 
 ## Docker Image
 

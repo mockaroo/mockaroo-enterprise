@@ -22,7 +22,69 @@ The Mockaroo docker image is distributed via Amazon's Elastic Container Eegistry
 622045361486.dkr.ecr.us-west-2.amazonaws.com/mockaroo-enterprise
 ```
 
-## Setup
+## Redis
+
+Mockaroo uses Redis for caching content and queuing data generation jobs. 
+
+### Docker
+
+To run Redis as a docker image:
+
+```
+docker run -d --name redis -p 6379:6379 redis
+```
+
+### Amazon ElastiCache
+
+If you're using AWS the easiest way to provide Redis to Mockaroo is to create a Redis cluster using Amazon ElasticCache.
+
+* Be sure to create the cluster in the same VPC where the EC2 instances running Mockaroo will reside.
+* You can use a very small instance type as Mockaroo does not send much traffic to Redis. For example, cache.t2.small.
+
+As an alternative, you can also run Redis natively or using docker if you don't want to use ElastiCache.
+
+### Google Memorystore
+
+You can use Google Cloud Platform's redis-compatible Memorystore service to host redis:
+
+https://cloud.google.com/memorystore
+
+## Postgres
+
+### Amazon RDS
+
+To host Mockaroo's database on Amazon RDS, create a postgres database called "mockaroo".  Remember the username and password.  You'll need to configure those as environment variables later.
+
+### Google Cloud SQL
+
+To host Mockaroo's database on Google Cloud SQL, create a postgres database called "mockaroo".  Remember the username and password.  You'll need to configure those as environment variables later.
+
+https://cloud.google.com/sql
+
+## Amazon S3 Bucket
+
+Amazon S3 is required to run Mockaroo. Create an Amazon S3 bucket.  You'll configure the name as an environment variable later.
+In order for Mockaroo to upload files to this bucket, you can either configure AWS_ACCESS_KEY and AWS_SECRET_KEY environment variables (See "App Container" below), or assign an IAM role to the EC2 instance(s) on which Mockaroo run that can write to the S3 bucket.  Here a guide that describes how to do this: [Enable S3 access from EC2 by IAM role](https://cloud-gc.readthedocs.io/en/latest/chapter03_advanced-tutorial/iam-role.html)
+
+## Email
+
+Mockaroo sends emails when users need to reset their password or have a file ready to download. 
+
+### Amazon SES
+
+To use Amazon SES for sending emails:
+
+1. Under Identity Management > Domains, add the domain on which Mockaroo will be hosted.  You will later set this as the MOCKAROO_DOMAIN environment variables.
+2. Under Identity Management > Emails, add a "no-reply@(your domain)" email address.
+3. Under Email Sending > SMTP Settings, create your SMTP credentials.  You will use these to set the MAIL_HOST, MAIL_USERNAME, and MAIL_PASSWORD environment variables.
+
+```
+MAIL_HOST=(your SES email host, typically something like "email-smtp.us-west-2.amazonaws.com")
+MAIL_USERNAME=(your SES email username)
+MAIL_PASSWORD=(your SES email password)
+```
+
+## Mockaroo App and Worker Instances
 
 Mockaroo provides two types of services:
 
@@ -72,72 +134,7 @@ Then, pull the docker image:
 docker pull 622045361486.dkr.ecr.us-west-2.amazonaws.com/mockaroo-enterprise:latest
 ```
 
-### Redis
-
-Mockaroo uses Redis for caching content and queuing data generation jobs. 
-
-#### Docker
-
-To run Redis as a docker image:
-
-```
-docker run -d --name redis -p 6379:6379 redis
-```
-
-#### Amazon ElastiCache
-
-If you're using AWS the easiest way to provide Redis to Mockaroo is to create a Redis cluster using Amazon ElasticCache.
-
-* Be sure to create the cluster in the same VPC where the EC2 instances running Mockaroo will reside.
-* You can use a very small instance type as Mockaroo does not send much traffic to Redis. For example, cache.t2.small.
-
-As an alternative, you can also run Redis natively or using docker if you don't want to use ElastiCache.
-
-#### Google Memorystore
-
-You can use Google Cloud Platform's redis-compatible Memorystore service to host redis:
-
-https://cloud.google.com/memorystore
-
-### Postgres
-
-#### Amazon RDS
-
-To host Mockaroo's database on Amazon RDS, create a postgres database called "mockaroo".  Remember the username and password.  You'll need to configure those as environment variables later.
-
-#### Google Cloud SQL
-
-To host Mockaroo's database on Google Cloud SQL, create a postgres database called "mockaroo".  Remember the username and password.  You'll need to configure those as environment variables later.
-
-https://cloud.google.com/sql
-
-### Amazon S3 Bucket
-
-Amazon S3 is required to run Mockaroo. Create an Amazon S3 bucket.  You'll configure the name as an environment variable later.
-In order for Mockaroo to upload files to this bucket, you can either configure AWS_ACCESS_KEY and AWS_SECRET_KEY environment variables (See "App Container" below), or assign an IAM role to the EC2 instance(s) on which Mockaroo run that can write to the S3 bucket.  Here a guide that describes how to do this: [Enable S3 access from EC2 by IAM role](https://cloud-gc.readthedocs.io/en/latest/chapter03_advanced-tutorial/iam-role.html)
-
-
-### Email
-
-Mockaroo sends emails when users need to reset their password or have a file ready to download. 
-
-#### Amazon SES
-
-To use Amazon SES for sending emails:
-
-1. Under Identity Management > Domains, add the domain on which Mockaroo will be hosted.  You will later set this as the MOCKAROO_DOMAIN environment variables.
-2. Under Identity Management > Emails, add a "no-reply@(your domain)" email address.
-3. Under Email Sending > SMTP Settings, create your SMTP credentials.  You will use these to set the MAIL_HOST, MAIL_USERNAME, and MAIL_PASSWORD environment variables.
-
-```
-MAIL_HOST=(your SES email host, typically something like "email-smtp.us-west-2.amazonaws.com")
-MAIL_USERNAME=(your SES email username)
-MAIL_PASSWORD=(your SES email password)
-```
-
-### Mockaroo
-
-#### App Container
+### App Instance
 
 To run the Mockaroo web app, the first step is to create an app.env file...
 
@@ -197,7 +194,7 @@ Finally, run the following to start the mockaroo web app on port 3000 (or any po
 docker run -d --name mockaroo --env-file app.env -p 3000:3000 mockaroo/mockaroo-enterprise
 ```
 
-### Worker Container
+### Worker Instance
 
 To run the data generation workers, copy app.env to a new file called worker.env and replace this:
 

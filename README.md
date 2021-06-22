@@ -1,16 +1,18 @@
 # Setting up Mockaroo Enterprise
 
-Mockaroo can be installed in your private AWS cloud as a docker image.  [Contact support for pricing.](https://mockaroo.com/comments/new)
+Mockaroo can be installed in your private cloud as a docker image.  [Contact support for pricing.](https://mockaroo.com/comments/new)
 
 ## Requirements
 
 Mockaroo requires the following cloud services:
 
-* Amazon RDS (Postgres)
 * Amazon S3
-* Amazone SES (optional)
 
-Mockaroo also requires redis, which can be installed via the redis docker image.
+Mockaroo also requires the following 3rd party software:
+
+* Redis
+* Postgres
+* An email provider
 
 ## Docker Image
 
@@ -70,14 +72,11 @@ Then, pull the docker image:
 docker pull 622045361486.dkr.ecr.us-west-2.amazonaws.com/mockaroo-enterprise:latest
 ```
 
-### Amazon ElastiCache
+### Redis
 
-Mockaroo uses Redis for caching content and queuing data generation jobs.  If you're using AWS the easiest way to provide Redis to Mockaroo is to create a Redis cluster using Amazon ElasticCache.
+Mockaroo uses Redis for caching content and queuing data generation jobs. 
 
-* Be sure to create the cluster in the same VPC where the EC2 instances running Mockaroo will reside.
-* You can use a very small instance type as Mockaroo does not send much traffic to Redis. For example, cache.t2.small.
-
-As an alternative, you can also run Redis natively or using docker if you don't want to use ElastiCache.
+#### Docker
 
 To run Redis as a docker image:
 
@@ -85,26 +84,62 @@ To run Redis as a docker image:
 docker run -d --name redis -p 6379:6379 redis
 ```
 
-### Amazon RDS
+#### Amazon ElastiCache
 
-Create a postgres database on Amazon RDS called "mockaroo".  Remember the username and password.  You'll need to configure those as environment variables later.
+If you're using AWS the easiest way to provide Redis to Mockaroo is to create a Redis cluster using Amazon ElasticCache.
+
+* Be sure to create the cluster in the same VPC where the EC2 instances running Mockaroo will reside.
+* You can use a very small instance type as Mockaroo does not send much traffic to Redis. For example, cache.t2.small.
+
+As an alternative, you can also run Redis natively or using docker if you don't want to use ElastiCache.
+
+#### Google Memorystore
+
+You can use Google Cloud Platform's redis-compatible Memorystore service to host redis:
+
+https://cloud.google.com/memorystore
+
+### Postgres
+
+#### Amazon RDS
+
+To host Mockaroo's database on Amazon RDS, create a postgres database called "mockaroo".  Remember the username and password.  You'll need to configure those as environment variables later.
+
+#### Google Cloud SQL
+
+To host Mockaroo's database on Google Cloud SQL, create a postgres database called "mockaroo".  Remember the username and password.  You'll need to configure those as environment variables later.
+
+https://cloud.google.com/sql
 
 ### Amazon S3 Bucket
 
-Create an Amazon S3 bucket.  You'll configure the name as an environment variable later.
+Amazon S3 is required to run Mockaroo. Create an Amazon S3 bucket.  You'll configure the name as an environment variable later.
 In order for Mockaroo to upload files to this bucket, you can either configure AWS_ACCESS_KEY and AWS_SECRET_KEY environment variables (See "App Container" below), or assign an IAM role to the EC2 instance(s) on which Mockaroo run that can write to the S3 bucket.  Here a guide that describes how to do this: [Enable S3 access from EC2 by IAM role](https://cloud-gc.readthedocs.io/en/latest/chapter03_advanced-tutorial/iam-role.html)
 
-### Amazon SES for Email
 
-Mockaroo sends emails when users need to reset their password or have a file ready to download. We recommend you use Amazon SES to send emails. To set up SES:
+### Email
+
+Mockaroo sends emails when users need to reset their password or have a file ready to download. 
+
+#### Amazon SES
+
+To use Amazon SES for sending emails:
 
 1. Under Identity Management > Domains, add the domain on which Mockaroo will be hosted.  You will later set this as the MOCKAROO_DOMAIN environment variables.
 2. Under Identity Management > Emails, add a "no-reply@(your domain)" email address.
 3. Under Email Sending > SMTP Settings, create your SMTP credentials.  You will use these to set the MAIL_HOST, MAIL_USERNAME, and MAIL_PASSWORD environment variables.
 
-### App Container
+```
+MAIL_HOST=(your SES email host, typically something like "email-smtp.us-west-2.amazonaws.com")
+MAIL_USERNAME=(your SES email username)
+MAIL_PASSWORD=(your SES email password)
+```
 
-To run the app and api services, the first step is to create an app.env file...
+### Mockaroo
+
+#### App Container
+
+To run the Mockaroo web app, the first step is to create an app.env file...
 
 ```
 # You'll need to configure these with your own values:
@@ -119,9 +154,13 @@ S3_BUCKET=(the name of the S3 bucket assigned to mockaroo)
 MOCKAROO_ADMIN_EMAIL=(an email address where errors and daily reports should be sent)
 MOCKAROO_DOMAIN=(the domain name on which your hosting mockaroo)  
 MOCKAROO_MAIL_FROM=(the email address used when Mockaroo sends automated emails, defaults to "no-reply@{MOCKAROO_DOMAIN}")
-MAIL_HOST=(your SES email host, typically something like "email-smtp.us-west-2.amazonaws.com")
-MAIL_USERNAME=(your SES email username)
-MAIL_PASSWORD=(your SES email password)
+MAIL_HOST=(your email host)
+MAIL_USERNAME=(your email username)
+MAIL_PASSWORD=(your email password)
+
+# Optional configs
+GOOGLE_AUTH_KEY=(optional, your google auth key if you'd like to allow users to log in with google)
+GOOGLE_AUTH_SECRET=(optional, your google auth secret if you'd like to allow users to log in with google)
 
 # In most cases you can leave these unchanged:
 RAILS_ENV=production
@@ -186,95 +225,22 @@ To start the worker container, run:
 docker run -d --name worker --env-file worker.env mockaroo/mockaroo-enterprise
 ```
 
-## Web Server
+## Load Balancer
 
-In order to serve traffic from Mockaroo securely, you need to put a web server in front of Mockaroo. Here we offer two choices:
+Even if you're running a single Mockaroo app instance, you'll need to put a load balancer in front of Mockaroo to provide TLS.
 
-- NGINX
-- AWS API Gateway
+### AWS
 
-Before continuing, ensure that you have created DNS A records for the domain on which you want to host Mockaroo.  For example,
-if the domain you want to use is mockaroo.my-enterprise.com, create A records for the following domains that point to the IP address
-on which Mockaroo is hosted:
+1. Create a target group called "mockaroo".
+2. Add your Mockaroo app instance(s) to the target group
+3. Create listeners on port 80 and 443, forwarding to the mockaroo target group.
+4. Create and assign a certificate for the HTTPs listener.
+5. Create an Elastic IP and assign it to your load balancer.
+6. Create an A record via Route53 pointing to your Elastic IP.
 
-```
-mockaroo.my-enterprise.com
-api.mockaroo.my-enterprise.com
-my.api.mockaroo.my-enterprise.com
-```
+### GCP
 
-### NGINX
-
-To install NGINX on Ubuntu 18, run:
-
-```
-sudo apt update
-sudo apt install nginx
-```
-
-To configure NGINX, create a file called nginx.conf with the following contents:
-
-```
-upstream mockaroo {
-  server localhost:3000;
-}
-
-server {
-  listen 443 ssl http2;
-  listen [::]:443 ssl http2;
-  
-  # You will need to change each occurrence of "mockaroo.my-enterprise.com" below to your custom domain for mockaroo
-  server_name mockaroo.my-enterprise.com;
-  server_name api.mockaroo.my-enterprise.com;
-  server_name my.api.mockaroo.my-enterprise.com;
-  
-  proxy_set_header Host $http_host;
-  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-  proxy_set_header X-Forwarded-Proto $scheme;
-  proxy_redirect off;
-  proxy_send_timeout 1000s;   # disable timeout - protects against complicated schemas timing out before flushing
-  proxy_read_timeout 1000s;   # disable timeout - protects against complicated schemas timing out before flushing
-  proxy_buffering off;        # enabled response streaming
-  client_max_body_size 20M;
-  keepalive_timeout 10;
-
-  location / {
-    proxy_pass http://mockaroo;
-  }
-}
-```
-
-Then, link the site and reload nginx:
-
-```
-sudo ln -s $(pwd)/nginx.conf /etc/nginx/sites-enabled/mockaroo
-sudo systemctl reload nginx
-```
-
-#### TLS
-
-You can use certbot to provision a free TLS certificate for Mockaroo. Installation steps may differ depending on your OS.  For Ubuntu 18, run:
-
-```
-sudo snap install core; sudo snap refresh core
-sudo snap install --classic certbot
-sudo ln -s /snap/bin/certbot /usr/bin/certbot
-sudo certbot --nginx
-```
-
-Then, when prompted, generate a certificate for all of the sites listed.
-
-To ensure that certs are automatically renewed every 90 days, add a cron task by running:
-
-```
-crontab -e
-```
-
-And then pasting the following:
-
-```
-43 6 * * * certbot renew --post-hook "sudo systemctl restart nginx"
-```
+Set up a GCP [load balancer](https://cloud.google.com/load-balancing/docs) and [Google Managed SSL Cert](https://cloud.google.com/load-balancing/docs/ssl-certificates/google-managed-certs), fowarding all traffic on ports 80 and 443 to your Mockaroo app instance(s).
 
 ## Limiting Sign Ups to Certain Email Domains
 

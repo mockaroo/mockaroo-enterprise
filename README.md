@@ -95,7 +95,14 @@ Mockaroo provides two types of services:
 * app - The web front-end
 * worker - Data generation workers - When we need to generate large volumes of data quickly, this is what we'll scale
 
-I suggest running at least 2 separate docker containers: one for the app and one for workers.
+### CPU and Memory Requirements
+
+|Instance Type|CPUs|Memory per CPU|
+|-------------|----|--------------|
+|app|4 or more|8GB per CPU|
+|worker|8 or more|8GB per CPU|
+
+We suggest running at least 2 separate docker containers: one for the app and one for workers.
 
 ### Pulling the image from Amazon ECR
 
@@ -198,10 +205,6 @@ Finally, run the following to start the mockaroo web app on port 3000 (or any po
 docker run -d --name mockaroo --env-file app.env -p 3000:3000 mockaroo/mockaroo-enterprise
 ```
 
-#### Recommended CPU and Memory
-
-To start, we recommend using at least 2 dedicated CPUs and 16GB of memory for the app instance. When adding additional CPUs, memory should be 8GB for every CPU.
-
 ### Worker Instance
 
 To run the data generation workers, copy app.env to a new file called worker.env and replace this:
@@ -229,10 +232,6 @@ To start the worker container, run:
 ```
 docker run -d --name worker --env-file worker.env mockaroo/mockaroo-enterprise
 ```
-
-#### Recommended CPU and Memory
-
-To start, we recommend using at least 8 dedicated CPUs and 64GB of memory for the worker instance. When adding additional CPUs, memory should be 8GB for every CPU.
 
 ## Load Balancer
 

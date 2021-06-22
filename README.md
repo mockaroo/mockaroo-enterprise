@@ -198,6 +198,10 @@ Finally, run the following to start the mockaroo web app on port 3000 (or any po
 docker run -d --name mockaroo --env-file app.env -p 3000:3000 mockaroo/mockaroo-enterprise
 ```
 
+#### Recommended CPU and Memory
+
+To start, we recommend using at least 2 dedicated CPUs and 16GB of memory for the app instance. When adding additional CPUs, memory should be 8GB for every CPU.
+
 ### Worker Instance
 
 To run the data generation workers, copy app.env to a new file called worker.env and replace this:
@@ -225,6 +229,10 @@ To start the worker container, run:
 ```
 docker run -d --name worker --env-file worker.env mockaroo/mockaroo-enterprise
 ```
+
+#### Recommended CPU and Memory
+
+To start, we recommend using at least 8 dedicated CPUs and 64GB of memory for the worker instance. When adding additional CPUs, memory should be 8GB for every CPU.
 
 ## Load Balancer
 

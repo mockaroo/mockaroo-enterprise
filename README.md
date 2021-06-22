@@ -1,8 +1,12 @@
 # Setting up Mockaroo Enterprise
 
-Mockaroo can be installed in your private cloud as a docker image.  [Contact support for pricing.](https://mockaroo.com/comments/new)
+## License
 
-## Requirements
+[Mockaroo Enterprise License](/mockaroo/mockaroo-enterprise/blob/master/LICENSE.md)
+
+## Installation Requirements
+
+Mockaroo can be installed in your private cloud as a docker image.  [Contact support for pricing.](https://mockaroo.com/comments/new)
 
 Mockaroo requires the following cloud services:
 

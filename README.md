@@ -97,10 +97,10 @@ Mockaroo provides two types of services:
 
 ### CPU and Memory Requirements
 
-|Instance Type|CPUs|Memory per CPU|
-|-------------|----|--------------|
-|app|8 or more|8GB per CPU|
-|worker|8 or more|8GB per CPU|
+|Instance Type|CPUs|Memory per CPU|HD Storage Capacity|
+|-------------|----|--------------|-------------------|
+|app|8 or more|8GB per CPU|At least 50GB per VM|
+|worker|8 or more|8GB per CPU|At least 50GB per VM|
 
 We suggest running at least 2 separate docker containers: one for the app and one for workers.
 

@@ -160,6 +160,7 @@ REDIS_WORKERS=(The number of data generation workers you are running.  Can be fr
 DB_USERNAME=(database username)
 DB_PASSWORD=(database password)
 DB_HOSTNAME=(hostname of your amazon rds instance)
+AWS_REGION=(The region where your S3 bucket exists, e.g. us-east-1)
 AWS_ACCESS_KEY=(your aws key - alternatively you can omit this and grant mockaroo access to your bucket via IAM)
 AWS_SECRET_KEY=(your aws secret - alternatively you can omit this and grant mockaroo access to your bucket via IAM)
 S3_BUCKET=(the name of the S3 bucket assigned to mockaroo)

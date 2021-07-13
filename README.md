@@ -4,6 +4,10 @@
 
 [Mockaroo Enterprise License](/mockaroo/mockaroo-enterprise/blob/master/LICENSE.md)
 
+## Getting Access
+
+Mockaroo Enterprise is distributed as a docker repository on Amazon ECR. Please let us know the AWS account ID under which Mockaroo will be installed. We need to grant permission to that account specifically.  Multiple accounts are supported if needed.
+
 ## Installation Requirements
 
 Mockaroo can be installed in your private cloud as a docker image.  [Contact support for pricing.](https://mockaroo.com/comments/new)

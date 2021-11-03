@@ -265,7 +265,7 @@ MOCKAROO_VALID_ACCOUNT_DOMAINS=domain.com,mydomain.com
 
 ## Upgrades
 
-When an upgrade is available, grab the latest mockaroo-enterprise docker image, then run:
+When an upgrade is available, [pull the latest mockaroo-enterprise docker image](https://github.com/mockaroo/mockaroo-enterprise#pulling-the-image-from-amazon-ecr), then run:
 
 ```
 docker run app.env mockaroo/mockaroo-enterprise:(version) rake db:migrate

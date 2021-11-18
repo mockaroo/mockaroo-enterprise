@@ -196,7 +196,7 @@ MOCKAROO_DEFAULT_PLAN=Enterprise
 REDIS_CLIENT_CONNECTIONS=16
 REDIS_CONCURRENCY=20
 REDIS_SERVER_CONNECTIONS=18
-MOCKAROO_WORKERS=web=1
+MOCKAROO_WORKERS=web=1,default=1
 ```
 ... then, run following to initialize the database ...
 

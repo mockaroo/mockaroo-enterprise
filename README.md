@@ -22,6 +22,14 @@ Mockaroo also requires the following 3rd party software:
 * Postgres v13
 * An email service such as Amazon SES or Sendgrid
 
+## Architecture
+
+Here is what Mockaroo looks like when deployed on AWS:
+
+![Mockaroo Architecture](https://docs.google.com/drawings/d/e/2PACX-1vSTzZOirq7k4rL0azIovUguL47u49wRL3yZFg7v7j3Eqpf5quBzi9gbKEMtMsSliFBD4bxKcmZ4c7Q5/pub?w=569&h=577)
+
+Note that the only required component from AWS is S3. You can use any other cloud provider to host the Mockaroo database, docker containers, load balancer, and Redis.
+
 ## Docker Image
 
 The Mockaroo docker image is distributed via Amazon's Elastic Container Eegistry (ECR).  The URI for the image is:

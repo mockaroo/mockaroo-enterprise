@@ -250,6 +250,10 @@ docker run -d --name worker --env-file worker.env mockaroo/mockaroo-enterprise
 
 Even if you're running a single Mockaroo app instance, you'll need to put a load balancer in front of Mockaroo to provide TLS.
 
+### Domains
+
+You can choose any domain name you like for hosting Mockaroo Enterprise. In addition to creating a DNS entry to map your chosen domain to Mockaroo, you should also create a DNS entry for `my.api.(your-mockaroo-domain)` and `api.(your-mockaroo-domain)`. Make sure the TLS certificate you assign to Mockaroo contains all three domains.
+
 ### AWS
 
 1. Create a target group called "mockaroo".
@@ -257,7 +261,8 @@ Even if you're running a single Mockaroo app instance, you'll need to put a load
 3. Create listeners on port 80 and 443, forwarding to the mockaroo target group.
 4. Create and assign a certificate for the HTTPs listener.
 5. Create an Elastic IP and assign it to your load balancer.
-6. Create an A record via Route53 pointing to your Elastic IP.
+6. Create an A record via Route53 pointing (your-mockaroo-domain) to your Elastic IP.
+7. Create CNAME records in Route53 that point my.api.(your-mockaroo-domain) and api.(your-mockaroo-domain) to (your-mockaroo-domain).
 
 ### GCP
 

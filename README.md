@@ -293,7 +293,7 @@ To view in progress jobs, go to "Admin - Downloads" in the user menu when signed
 When an upgrade is available, [pull the latest mockaroo-enterprise docker image](https://github.com/mockaroo/mockaroo-enterprise#pulling-the-image-from-amazon-ecr), then run:
 
 ```
-docker run --env-file app.env mockaroo/mockaroo-enterprise rake db:migrate
+docker run --env-file app.env 622045361486.dkr.ecr.us-west-2.amazonaws.com/mockaroo-enterprise rails db:migrate
 ```
 
 Then, redeploy your app and worker containers

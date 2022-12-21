@@ -276,6 +276,8 @@ To limit signups to certain email domains, add an environment variable called `M
 MOCKAROO_VALID_ACCOUNT_DOMAINS=domain.com,mydomain.com
 ```
 
+# Admin Mode
+
 ## Granting Admin Rights
 
 Admins can view in progress data generation jobs for all users, and if necessary, cancel in progress jobs. To grant a user admin rights, run the following SQL query:
@@ -287,6 +289,10 @@ where email = '<a user's email address>'
 ```
 
 To view in progress jobs, go to "Admin - Downloads" in the user menu when signed in as an admin user.
+
+## Impersonating Users
+
+Admins can impersonate users to help troubleshoot and fix problems. To impersonate a user, select "Impersonate User" from the user menu in the upper right. Enter the email address of the user that you want to impersonate and click "Impersonate". Just remember to click "Stop Impersonating" in the user menu when you are done!
 
 ## Upgrades
 

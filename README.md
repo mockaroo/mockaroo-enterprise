@@ -276,6 +276,18 @@ To limit signups to certain email domains, add an environment variable called `M
 MOCKAROO_VALID_ACCOUNT_DOMAINS=domain.com,mydomain.com
 ```
 
+## Granting Admin Rights
+
+Admins can view in progress data generation jobs for all users, and if necessary, cancel in progress jobs. To grant a user admin rights, run the following SQL query:
+
+```sql
+update users
+set admin=true
+where email = '<a user's email address>'
+```
+
+To view in progress jobs, go to "Admin - Downloads" in the user menu when signed in as an admin user.
+
 ## Upgrades
 
 When an upgrade is available, [pull the latest mockaroo-enterprise docker image](https://github.com/mockaroo/mockaroo-enterprise#pulling-the-image-from-amazon-ecr), then run:

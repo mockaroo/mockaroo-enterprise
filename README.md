@@ -209,7 +209,7 @@ MOCKAROO_WORKERS=web=1,default=1
 ... then, run following to initialize the database ...
 
 ```
-docker run --env-file app.env mockaroo/mockaroo-enterprise rails db:create && rails db:schema:load && rails db:seed
+docker run --env-file app.env mockaroo/mockaroo-enterprise /app/bin/rails db:create && /app/bin/rails db:schema:load && /app/bin/rails db:seed
 ```
 
 Finally, run the following to start the mockaroo web app on port 3000 (or any port you like):
@@ -318,7 +318,7 @@ You can mount these as local volumes using docker compose like so:
 When an upgrade is available, [pull the latest mockaroo-enterprise docker image](https://github.com/mockaroo/mockaroo-enterprise#pulling-the-image-from-amazon-ecr), then run:
 
 ```
-docker run --env-file app.env 622045361486.dkr.ecr.us-west-2.amazonaws.com/mockaroo-enterprise rails db:migrate
+docker run --env-file app.env 622045361486.dkr.ecr.us-west-2.amazonaws.com/mockaroo-enterprise /app/bin/rails db:migrate
 ```
 
 Then, redeploy your app and worker containers

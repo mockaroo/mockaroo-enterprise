@@ -209,7 +209,7 @@ MOCKAROO_WORKERS=web=1,default=1
 ... then, run following to initialize the database ...
 
 ```
-docker run --env-file app.env mockaroo/mockaroo-enterprise rake db:create && rake db:schema:load && rake db:seed
+docker run --env-file app.env mockaroo/mockaroo-enterprise rails db:create && rails db:schema:load && rails db:seed
 ```
 
 Finally, run the following to start the mockaroo web app on port 3000 (or any port you like):

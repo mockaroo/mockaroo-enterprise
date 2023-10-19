@@ -294,6 +294,25 @@ To view in progress jobs, go to "Admin - Downloads" in the user menu when signed
 
 Admins can impersonate users to help troubleshoot and fix problems. To impersonate a user, select "Impersonate User" from the user menu in the upper right. Enter the email address of the user that you want to impersonate and click "Impersonate". Just remember to click "Stop Impersonating" in the user menu when you are done!
 
+## Logs
+
+Within both app and worker instances, application logs can be found at /app/log.
+
+You can mount these as local volumes using docker compose like so:
+
+```yaml
+  app:
+    image: "mockaroo-enterprise"
+    volumes:
+      - /var/log/mockaroo/app:/app/log
+    ...
+  worker:
+    image: "mockaroo-enterprise"
+    volumes:
+      - /var/log/mockaroo/worker:/app/log
+    ...
+```
+
 ## Upgrades
 
 When an upgrade is available, [pull the latest mockaroo-enterprise docker image](https://github.com/mockaroo/mockaroo-enterprise#pulling-the-image-from-amazon-ecr), then run:

@@ -183,6 +183,14 @@ MAIL_PASSWORD=(your email password)
 GOOGLE_AUTH_KEY=(optional, your google auth key if you'd like to allow users to log in with google)
 GOOGLE_AUTH_SECRET=(optional, your google auth secret if you'd like to allow users to log in with google)
 
+# If you would like to force users to log in through your own OAuth provider, configure these settings:
+FORCE_SIGN_IN_THROUGH="generic_provider"
+OAUTH_CLIENT_ID=(the client id)
+OAUTH_CLIENT_SECRET=(the client secret)
+OAUTH_SITE=(the full URL for the oauth provider, typically something like https://example.com)
+OAUTH_AUTHORIZE_URL=(the full URL for the oauth authorization path, typically something like https://example.com/oauth/authorize)
+OAUTH_TOKEN_URL=(the full URL for the oauth token path, typically something like https://example.com/oauth/token)
+
 # In most cases you can leave these unchanged:
 RAILS_ENV=production
 RACK_ENV=production

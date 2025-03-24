@@ -180,8 +180,17 @@ MAIL_USERNAME=(your email username)
 MAIL_PASSWORD=(your email password)
 
 # Optional configs
+MOCKAROO_LOG_LEVEL=("debug", "info", "warn", or "error" - defaults to "info")
+
 GOOGLE_AUTH_KEY=(optional, your google auth key if you'd like to allow users to log in with google)
 GOOGLE_AUTH_SECRET=(optional, your google auth secret if you'd like to allow users to log in with google)
+
+AZURE_CLIENT_ID=(optional, use this to enable sign-in through Azure)
+AZURE_CLIENT_SECRET=(optional, use this to enable sign-in through Azure)
+AZURE_TENANT_ID=(optional, use this to enable sign-in through Azure)
+
+GITHUB_AUTH_KEY=(optional, use this to enable sign-in through GitHub)
+GITHUB_AUTH_SECRET=(optional, use this to enable sign-in through GitHub)
 
 # If you would like to force users to log in through your own OAuth provider, configure these settings:
 FORCE_SIGN_IN_THROUGH="generic_provider"

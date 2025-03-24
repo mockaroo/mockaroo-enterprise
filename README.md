@@ -190,6 +190,7 @@ OAUTH_CLIENT_SECRET=(the client secret)
 OAUTH_SITE=(the full URL for the oauth provider, typically something like https://example.com)
 OAUTH_AUTHORIZE_URL=(the full URL for the oauth authorization path, typically something like https://example.com/oauth/authorize)
 OAUTH_TOKEN_URL=(the full URL for the oauth token path, typically something like https://example.com/oauth/token)
+OAUTH_SIGN_OUT_URL=(optionally add a URL to redirect to to sign the user out of their SSO session. Typically something like https://example.com/users/sign_out)
 
 # In most cases you can leave these unchanged:
 RAILS_ENV=production

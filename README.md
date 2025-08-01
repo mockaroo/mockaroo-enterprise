@@ -77,10 +77,25 @@ To host Mockaroo's database on Google Cloud SQL, create a postgres database call
 
 https://cloud.google.com/sql
 
-## Amazon S3 Bucket
+## Block Storage
 
-Amazon S3 is required to run Mockaroo. Create an Amazon S3 bucket.  You'll configure the name as an environment variable later.
+Mockaroo requires either Amazon S3 or Google Cloud Storage
+
+### Amazon S3
+
+Create an Amazon S3 bucket.  You'll configure the name as the `S3_BUCKET` environment variable later.
 In order for Mockaroo to upload files to this bucket, you can either configure AWS_ACCESS_KEY and AWS_SECRET_KEY environment variables (See "App Container" below), or assign an IAM role to the EC2 instance(s) on which Mockaroo runs that can write to the S3 bucket.  Here a guide that describes how to do this: [Enable S3 access from EC2 by IAM role](https://cloud-gc.readthedocs.io/en/latest/chapter03_advanced-tutorial/iam-role.html)
+
+### Google Cloud Storage
+
+Create a GCS bucket and set the following environment variables:
+
+```
+MOCKAROO_STORAGE_PROVIDER="gcs"
+MOCKAROO_GCS_PROJECT="your-gcp-project-id"
+MOCKAROO_GCS_BUCKET="your-bucket-name"
+MOCKAROO_GCS_KEYFILE="/path/to/gcs/keyfile"
+```
 
 ## Email
 
@@ -168,16 +183,25 @@ REDIS_WORKERS=(The number of data generation workers you are running.  Can be fr
 DB_USERNAME=(database username)
 DB_PASSWORD=(database password)
 DB_HOSTNAME=(hostname of your amazon rds instance)
-AWS_REGION=(The region where your S3 bucket exists, e.g. us-east-1)
-AWS_ACCESS_KEY=(your aws key - alternatively you can omit this and grant mockaroo access to your bucket via IAM)
-AWS_SECRET_KEY=(your aws secret - alternatively you can omit this and grant mockaroo access to your bucket via IAM)
-S3_BUCKET=(the name of the S3 bucket assigned to mockaroo)
 MOCKAROO_ADMIN_EMAIL=(an email address where errors and daily reports should be sent)
 MOCKAROO_DOMAIN=(the domain name on which your hosting mockaroo)  
 MOCKAROO_MAIL_FROM=(the email address used when Mockaroo sends automated emails, defaults to "no-reply@{MOCKAROO_DOMAIN}")
 MAIL_HOST=(your email host)
 MAIL_USERNAME=(your email username)
 MAIL_PASSWORD=(your email password)
+
+# When using AWS:
+MOCKAROO_STORAGE_PROVIDER="s3"
+AWS_REGION=(The region where your S3 bucket exists, e.g. us-east-1)
+AWS_ACCESS_KEY=(your aws key - alternatively you can omit this and grant mockaroo access to your bucket via IAM)
+AWS_SECRET_KEY=(your aws secret - alternatively you can omit this and grant mockaroo access to your bucket via IAM)
+S3_BUCKET=(the name of the S3 bucket assigned to mockaroo)
+
+# Or, when using GCP:
+MOCKAROO_STORAGE_PROVIDER="gcs"
+MOCKAROO_GCS_PROJECT=(your GCP project id)
+MOCKAROO_GCS_BUCKET=(your GCS bucket name)
+MOCKAROO_GCS_KEYFILE=(the full path to your GCS keyfile)
 
 # Optional configs
 MOCKAROO_LOG_LEVEL=("debug", "info", "warn", or "error" - defaults to "info")

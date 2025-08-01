@@ -14,7 +14,7 @@ To get access to the Mockaroo Enterprise Docker image on Amazon ECR, please let 
 
 ### GitHub
 
-To get access to the Mockaroo Enterprise Docker image on GitHub, provide us with the GitHub usernames that will be used to pull the image. Once access is granted you can pull the image by running:
+To get access to the Mockaroo Enterprise Docker image on GitHub, provide us with the GitHub usernames that will be used to pull the image. Once access is granted you can pull the image by running the following with a Personal Access Token (PAT) that has permission to read packages:
 
 ```
 export GHCR_USER=YOUR_GITHUB_USERNAME

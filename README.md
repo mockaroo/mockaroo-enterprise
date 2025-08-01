@@ -84,14 +84,6 @@ Here is what Mockaroo looks like when deployed on AWS:
 
 Mockaroo can be deployed on GCP as well.
 
-## Docker Image
-
-The Mockaroo docker image is distributed via Amazon's Elastic Container Eegistry (ECR).  The URI for the image is:
-
-```
-622045361486.dkr.ecr.us-west-2.amazonaws.com/mockaroo-enterprise
-```
-
 ## Redis
 
 Mockaroo uses Redis for caching content and queuing data generation jobs. 

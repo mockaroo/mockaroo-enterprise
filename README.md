@@ -365,7 +365,7 @@ You can mount these as local volumes using docker compose like so:
 When an upgrade is available, [pull the latest mockaroo-enterprise docker image](https://github.com/mockaroo/mockaroo-enterprise#pulling-the-image-from-amazon-ecr), then run:
 
 ```
-docker run --env-file app.env 622045361486.dkr.ecr.us-west-2.amazonaws.com/mockaroo-enterprise /app/bin/rails db:migrate
+docker run --rm --env-file app.env --entrypoint /app/bin/rails 622045361486.dkr.ecr.us-west-2.amazonaws.com/mockaroo-enterprise db:migrate
 ```
 
 Then, redeploy your app and worker containers

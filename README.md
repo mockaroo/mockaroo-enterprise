@@ -323,6 +323,96 @@ To limit signups to certain email domains, add an environment variable called `M
 MOCKAROO_VALID_ACCOUNT_DOMAINS=domain.com,mydomain.com
 ```
 
+## Okta / OIDC Single Sign-On
+
+Mockaroo Enterprise supports OpenID Connect (OIDC) for single sign-on with Okta and other standards-compliant OIDC providers.
+
+### Okta App Setup
+
+In Okta, create a new application integration with these settings:
+
+- **Sign-in method**: OIDC - OpenID Connect
+- **Application type**: Web Application
+
+Configure the app with:
+
+- **Sign-in redirect URI**:  
+  `https://(your-mockaroo-domain)/users/auth/oidc/callback`
+- **Sign-out redirect URI** (optional):  
+  `https://(your-mockaroo-domain)/`
+- **Assignments**: Assign the users or groups that should be allowed to sign in to Mockaroo
+
+After saving the app, note the following values:
+
+- **Client ID**
+- **Client Secret**
+- **Issuer URL**
+
+For most Okta tenants, the issuer will be one of:
+
+- `https://(your-okta-domain)/oauth2/default`
+- `https://(your-okta-domain)/oauth2/(your-authorization-server-id)`
+
+Use the issuer value shown in your Okta authorization server settings.
+
+### App Configuration
+
+Add the following environment variables to your `app.env` file:
+
+```env
+OIDC_CLIENT_ID=(your okta client id)
+OIDC_CLIENT_SECRET=(your okta client secret)
+OIDC_ISSUER=(your okta issuer url, e.g. https://example.okta.com/oauth2/default)
+OIDC_SCOPE=openid profile email
+OIDC_REDIRECT_BASE_URI=https://(your-mockaroo-domain)
+```
+
+If you want users to sign in only through Okta, also add:
+
+```env
+FORCE_SIGN_IN_THROUGH=oidc
+MOCKAROO_ALLOW_PASSWORD_AUTH=false
+```
+
+If you want to offer both password login and Okta login, leave `FORCE_SIGN_IN_THROUGH` unset and keep `MOCKAROO_ALLOW_PASSWORD_AUTH=true`.
+
+### Required Claims
+
+Mockaroo expects the OIDC provider to return at least:
+
+- `sub`
+- `email`
+
+`name` and other profile claims are optional but recommended.
+
+In Okta, the standard `openid profile email` scopes will normally provide the claims Mockaroo needs.
+
+### Testing the Integration
+
+After redeploying the app container:
+
+1. Open `https://(your-mockaroo-domain)`
+2. Start the OIDC login flow
+3. Sign in through Okta
+4. Verify that you are redirected back to Mockaroo and signed in successfully
+
+### Troubleshooting
+
+If sign-in fails, check the following first:
+
+- The **redirect URI** in Okta exactly matches  
+  `https://(your-mockaroo-domain)/users/auth/oidc/callback`
+- `OIDC_ISSUER` exactly matches the issuer published by Okta
+- Your load balancer or reverse proxy forwards HTTPS correctly to Mockaroo
+- The Okta app is assigned to the user you are testing with
+- The Okta authorization server returns the `email` claim
+
+### Notes
+
+- OIDC should be used behind TLS. Set `MOCKAROO_USE_SSL=true` and terminate TLS at your load balancer or reverse proxy.
+- Mockaroo uses OIDC discovery for HTTPS issuers, so only the issuer URL, client ID, and client secret are required in most Okta deployments.
+- The same configuration pattern works with other standards-compliant OIDC providers besides Okta.
+
 # Admin Mode
 
 ## Granting Admin Rights

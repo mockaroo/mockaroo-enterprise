@@ -221,14 +221,17 @@ AZURE_TENANT_ID=(optional, use this to enable sign-in through Azure)
 GITHUB_AUTH_KEY=(optional, use this to enable sign-in through GitHub)
 GITHUB_AUTH_SECRET=(optional, use this to enable sign-in through GitHub)
 
-# If you would like to force users to log in through your own OAuth provider, configure these settings:
-FORCE_SIGN_IN_THROUGH="generic_provider"
-OAUTH_CLIENT_ID=(the client id)
-OAUTH_CLIENT_SECRET=(the client secret)
-OAUTH_SITE=(the full URL for the oauth provider, typically something like https://example.com)
-OAUTH_AUTHORIZE_URL=(the full URL for the oauth authorization path, typically something like https://example.com/oauth/authorize)
-OAUTH_TOKEN_URL=(the full URL for the oauth token path, typically something like https://example.com/oauth/token)
-OAUTH_SIGN_OUT_URL=(optionally add a URL to redirect to to sign the user out of their SSO session. Typically something like https://example.com/users/sign_out)
+# If you would like to allow users to sign in through an OpenID Connect (OIDC) provider such as Okta,
+# configure these settings:
+OIDC_CLIENT_ID=(the client id)
+OIDC_CLIENT_SECRET=(the client secret)
+OIDC_ISSUER=(the OIDC issuer URL, typically something like https://example.okta.com/oauth2/default)
+OIDC_SCOPE=openid profile email
+OIDC_REDIRECT_BASE_URI=https://(your-mockaroo-domain)
+
+# To force all users to sign in through your OIDC provider:
+FORCE_SIGN_IN_THROUGH=oidc
+MOCKAROO_ALLOW_PASSWORD_AUTH=false
 
 # In most cases you can leave these unchanged:
 RAILS_ENV=production

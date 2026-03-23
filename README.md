@@ -259,13 +259,15 @@ MOCKAROO_WORKERS=web=1,default=1
 ... then, run following to initialize the database ...
 
 ```
-docker run --env-file app.env mockaroo/mockaroo-enterprise /app/bin/rails db:create && /app/bin/rails db:schema:load && /app/bin/rails db:seed
+docker run --rm --env-file app.env 622045361486.dkr.ecr.us-west-2.amazonaws.com/mockaroo-enterprise:latest /app/bin/rails db:create && \
+docker run --rm --env-file app.env 622045361486.dkr.ecr.us-west-2.amazonaws.com/mockaroo-enterprise:latest /app/bin/rails db:schema:load && \
+docker run --rm --env-file app.env 622045361486.dkr.ecr.us-west-2.amazonaws.com/mockaroo-enterprise:latest /app/bin/rails db:seed
 ```
 
 Finally, run the following to start the mockaroo web app on port 3000 (or any port you like):
 
 ```
-docker run -d --name mockaroo --env-file app.env -p 3000:3000 mockaroo/mockaroo-enterprise
+docker run -d --name mockaroo --env-file app.env -p 3000:3000 622045361486.dkr.ecr.us-west-2.amazonaws.com/mockaroo-enterprise:latest
 ```
 
 ### Worker Instance
@@ -293,7 +295,7 @@ REDIS_SERVER_CONNECTIONS=(2 x #workers + 2)
 To start the worker container, run:
 
 ```
-docker run -d --name worker --env-file worker.env mockaroo/mockaroo-enterprise
+docker run -d --name worker --env-file worker.env 622045361486.dkr.ecr.us-west-2.amazonaws.com/mockaroo-enterprise:latest
 ```
 
 ## Load Balancer

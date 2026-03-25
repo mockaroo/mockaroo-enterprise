@@ -457,11 +457,5 @@ You can mount these as local volumes using docker compose like so:
 
 ## Upgrades
 
-When an upgrade is available, [pull the latest mockaroo-enterprise docker image](https://github.com/mockaroo/mockaroo-enterprise#pulling-the-image-from-amazon-ecr), then run:
-
-```
-docker run --rm --env-file app.env --entrypoint /app/bin/rails 622045361486.dkr.ecr.us-west-2.amazonaws.com/mockaroo-enterprise db:migrate
-```
-
-Then, redeploy your app and worker containers
+When an upgrade is available, [pull the latest mockaroo-enterprise docker image](https://github.com/mockaroo/mockaroo-enterprise#pulling-the-image-from-amazon-ecr), then simply redeploy your app and worker containers. Any database schema changes are automatically applied when Mockaroo starts.
 

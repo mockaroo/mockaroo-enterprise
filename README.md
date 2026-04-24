@@ -10,9 +10,9 @@ Mockaroo Enterprise is distributed as a docker image. You can download it from A
 
 ### Amazon ECR
 
-To get access to the Mockaroo Enterprise Docker image on Amazon ECR, please let us know the AWS account ID under which Mockaroo will be installed. We will grant permission to that account specifically.  Multiple accounts are supported if needed.
+To get access to the Mockaroo Enterprise Docker image on Amazon ECR, please let us know the AWS account ID under which Mockaroo will be installed. We will grant permission to that account specifically. Multiple accounts are supported if needed.
 
-Once the Mockaroo Enterprise repo has been shared with your AWS account, you'll need to ensure that the IAM user that you'll be using to pull the image has the required permissions.  These can be granted by applying the following IAM policy to a role to which the user has been assigned:
+Once the Mockaroo Enterprise repo has been shared with your AWS account, you'll need to ensure that the IAM user that you'll be using to pull the image has the required permissions. These can be granted by applying the following IAM policy to a role to which the user has been assigned:
 
 ```
 {
@@ -39,7 +39,7 @@ Once the user has been given the rights above, you can pull the Mockaroo Enterpr
 aws ecr get-login-password --region us-west-2 | docker login --password-stdin --username AWS 622045361486.dkr.ecr.us-west-2.amazonaws.com/mockaroo-enterprise:latest
 ```
 
-This will authenticate against the ECR repo with docker CLI by injecting an ECR token into docker from the output of the AWS CLI.  You should see the following output:
+This will authenticate against the ECR repo with docker CLI by injecting an ECR token into docker from the output of the AWS CLI. You should see the following output:
 
 ```
 Login Succeeded
@@ -64,17 +64,17 @@ docker pull ghcr.io/mockaroo/mockaroo-enterprise:latest
 
 ## Installation Requirements
 
-Mockaroo can be installed in your private cloud as a docker image.  [Contact support for pricing.](https://mockaroo.com/comments/new)
+Mockaroo can be installed in your private cloud as a docker image. [Contact support for pricing.](https://mockaroo.com/comments/new)
 
 Mockaroo requires the following cloud services:
 
-* Amazon S3 or Google Cloud Storage
+- Amazon S3, Google Cloud Storage, or Azure Blob Storage
 
 Mockaroo also requires the following 3rd party software:
 
-* Redis
-* Postgres v16 or newer
-* An email service such as Amazon SES or Sendgrid
+- Redis
+- Postgres v16 or newer
+- An email service such as Amazon SES or Sendgrid
 
 ## Architecture
 
@@ -86,7 +86,7 @@ Mockaroo can be deployed on GCP as well.
 
 ## Redis
 
-Mockaroo uses Redis for caching content and queuing data generation jobs. 
+Mockaroo uses Redis for caching content and queuing data generation jobs.
 
 ### Docker
 
@@ -100,8 +100,8 @@ docker run -d --name redis -p 6379:6379 redis
 
 If you're using AWS the easiest way to provide Redis to Mockaroo is to create a Redis cluster using Amazon ElasticCache.
 
-* Be sure to create the cluster in the same VPC where the EC2 instances running Mockaroo will reside.
-* You can use a very small instance type as Mockaroo does not send much traffic to Redis. For example, cache.t2.small.
+- Be sure to create the cluster in the same VPC where the EC2 instances running Mockaroo will reside.
+- You can use a very small instance type as Mockaroo does not send much traffic to Redis. For example, cache.t2.small.
 
 As an alternative, you can also run Redis natively or using docker if you don't want to use ElastiCache.
 
@@ -111,26 +111,45 @@ You can use Google Cloud Platform's redis-compatible Memorystore service to host
 
 https://cloud.google.com/memorystore
 
+### Azure Cache for Redis
+
+You can use Azure's redis-compatible managed service to host Redis for Mockaroo:
+
+https://learn.microsoft.com/en-us/azure/azure-cache-for-redis/cache-overview
+
+- Place the cache in the same virtual network (or with private connectivity) as your Mockaroo app/worker instances.
+- Set your `REDIS_URL` in `app.env` and `worker.env` to the SSL endpoint provided by Azure Cache for Redis.
+
 ## Postgres
 
 ### Amazon RDS
 
-To host Mockaroo's database on Amazon RDS, create a postgres database called "mockaroo".  Remember the username and password.  You'll need to configure those as environment variables later.
+To host Mockaroo's database on Amazon RDS, create a postgres database called "mockaroo". Remember the username and password. You'll need to configure those as environment variables later.
 
 ### Google Cloud SQL
 
-To host Mockaroo's database on Google Cloud SQL, create a postgres database called "mockaroo".  Remember the username and password.  You'll need to configure those as environment variables later.
+To host Mockaroo's database on Google Cloud SQL, create a postgres database called "mockaroo". Remember the username and password. You'll need to configure those as environment variables later.
 
 https://cloud.google.com/sql
 
-## Block Storage
+### Azure Database for PostgreSQL
 
-Mockaroo requires either Amazon S3 or Google Cloud Storage
+To host Mockaroo's database on Azure, create an Azure Database for PostgreSQL instance and create a database called "mockaroo". Remember the username and password. You'll need to configure those as environment variables later.
+
+https://learn.microsoft.com/en-us/azure/postgresql/
+
+## File Storage
+
+Mockaroo requires one of the following file storage providers:
+
+- Amazon S3
+- Google Cloud Storage
+- Azure Blob Storage
 
 ### Amazon S3
 
-Create an Amazon S3 bucket.  You'll configure the name as the `S3_BUCKET` environment variable later.
-In order for Mockaroo to upload files to this bucket, you can either configure AWS_ACCESS_KEY and AWS_SECRET_KEY environment variables (See "App Container" below), or assign an IAM role to the EC2 instance(s) on which Mockaroo runs that can write to the S3 bucket.  Here a guide that describes how to do this: [Enable S3 access from EC2 by IAM role](https://cloud-gc.readthedocs.io/en/latest/chapter03_advanced-tutorial/iam-role.html)
+Create an Amazon S3 bucket. You'll configure the name as the `S3_BUCKET` environment variable later.
+In order for Mockaroo to upload files to this bucket, you can either configure AWS_ACCESS_KEY and AWS_SECRET_KEY environment variables (See "App Container" below), or assign an IAM role to the EC2 instance(s) on which Mockaroo runs that can write to the S3 bucket. Here a guide that describes how to do this: [Enable S3 access from EC2 by IAM role](https://cloud-gc.readthedocs.io/en/latest/chapter03_advanced-tutorial/iam-role.html)
 
 ### Google Cloud Storage
 
@@ -143,17 +162,28 @@ MOCKAROO_GCS_BUCKET="your-bucket-name"
 MOCKAROO_GCS_KEYFILE="/path/to/gcs/keyfile"
 ```
 
+### Azure Blob Storage
+
+Create an Azure Blob Storage account and storage container. Then set the following environment variables:
+
+```
+MOCKAROO_STORAGE_PROVIDER="azure"
+AZURE_STORAGE_ACCOUNT="your-azure-storage-account-name"
+AZURE_STORAGE_ACCESS_KEY="your-azure-storage-access-key"
+AZURE_STORAGE_CONTAINER="your-container-name"
+```
+
 ## Email
 
-Mockaroo sends emails when users need to reset their password or have a file ready to download. 
+Mockaroo sends emails when users need to reset their password or have a file ready to download.
 
 ### Amazon SES
 
 To use Amazon SES for sending emails:
 
-1. Under Identity Management > Domains, add the domain on which Mockaroo will be hosted.  You will later set this as the MOCKAROO_DOMAIN environment variables.
+1. Under Identity Management > Domains, add the domain on which Mockaroo will be hosted. You will later set this as the MOCKAROO_DOMAIN environment variables.
 2. Under Identity Management > Emails, add a "no-reply@(your domain)" email address.
-3. Under Email Sending > SMTP Settings, create your SMTP credentials.  You will use these to set the MAIL_HOST, MAIL_USERNAME, and MAIL_PASSWORD environment variables.
+3. Under Email Sending > SMTP Settings, create your SMTP credentials. You will use these to set the MAIL_HOST, MAIL_USERNAME, and MAIL_PASSWORD environment variables.
 
 ```
 MAIL_HOST=(your SES email host, typically something like "email-smtp.us-west-2.amazonaws.com")
@@ -161,19 +191,35 @@ MAIL_USERNAME=(your SES email username)
 MAIL_PASSWORD=(your SES email password)
 ```
 
+### Azure Communication Services Email
+
+To use Azure Communication Services Email for sending emails:
+
+1. Create an Azure Communication Email resource and verify either your custom sending domain or use the Azure-managed `*.azurecomm.net` domain.
+2. Link the Email resource to an Azure Communication Services resource.
+3. Under the Communication Services resource, create an SMTP username and map it to a Microsoft Entra app registration.
+4. Use the app registration client secret as your SMTP password.
+
+```
+MAIL_HOST=smtp.azurecomm.net
+MAIL_PORT=587
+MAIL_USERNAME=(your ACS SMTP username)
+MAIL_PASSWORD=(your Microsoft Entra app client secret)
+```
+
 ## Mockaroo App and Worker Instances
 
 Mockaroo provides two types of services:
 
-* app - The web front-end
-* worker - Data generation workers - When we need to generate large volumes of data quickly, this is what we'll scale
+- app - The web front-end
+- worker - Data generation workers - When we need to generate large volumes of data quickly, this is what we'll scale
 
 ### CPU and Memory Requirements
 
-|Instance Type|CPUs|Memory per CPU|HD Storage Capacity|
-|-------------|----|--------------|-------------------|
-|app|8 or more|8GB per CPU|At least 50GB per VM|
-|worker|8 or more|4GB per CPU|At least 50GB per VM|
+| Instance Type | CPUs      | Memory per CPU | HD Storage Capacity  |
+| ------------- | --------- | -------------- | -------------------- |
+| app           | 8 or more | 8GB per CPU    | At least 50GB per VM |
+| worker        | 8 or more | 4GB per CPU    | At least 50GB per VM |
 
 We suggest running at least 2 separate docker containers: one for the app and one for workers.
 
@@ -189,7 +235,7 @@ DB_USERNAME=(database username)
 DB_PASSWORD=(database password)
 DB_HOSTNAME=(hostname of your amazon rds instance)
 MOCKAROO_ADMIN_EMAIL=(an email address where errors and daily reports should be sent)
-MOCKAROO_DOMAIN=(the domain name on which your hosting mockaroo)  
+MOCKAROO_DOMAIN=(the domain name on which your hosting mockaroo)
 MOCKAROO_MAIL_FROM=(the email address used when Mockaroo sends automated emails, defaults to "no-reply@{MOCKAROO_DOMAIN}")
 MAIL_HOST=(your email host)
 MAIL_USERNAME=(your email username)
@@ -210,6 +256,7 @@ MOCKAROO_GCS_KEYFILE=(the full path to your GCS keyfile)
 
 # Optional configs
 MOCKAROO_LOG_LEVEL=("debug", "info", "warn", or "error" - defaults to "info")
+MOCKAROO_REMEMBER_FOR=(optional, remember-me cookie lifetime; format: <number>.<unit> such as "1.hour", "30.minutes", or "14.days"; defaults to "10.years")
 
 GOOGLE_AUTH_KEY=(optional, your google auth key if you'd like to allow users to log in with google)
 GOOGLE_AUTH_SECRET=(optional, your google auth secret if you'd like to allow users to log in with google)
@@ -256,6 +303,7 @@ REDIS_CONCURRENCY=20
 REDIS_SERVER_CONNECTIONS=18
 MOCKAROO_WORKERS=web=1,default=1
 ```
+
 ... then, run following to initialize the database ...
 
 ```
@@ -284,7 +332,7 @@ with this:
 MOCKAROO_WORKERS=worker0=1,worker1=1,worker2=1,worker3=1,worker4=1,worker5=1,worker6=1,worker7=1
 ```
 
-This will give you 8 concurrent data generation processes.  You can add more by adding additional workers `worker8=1, worker9=1`, etc... to `MOCKAROO_WORKERS` and increasing the following:
+This will give you 8 concurrent data generation processes. You can add more by adding additional workers `worker8=1, worker9=1`, etc... to `MOCKAROO_WORKERS` and increasing the following:
 
 ```
 REDIS_CLIENT_CONNECTIONS=(2 x #workers)
@@ -319,6 +367,15 @@ You can choose any domain name you like for hosting Mockaroo Enterprise. In addi
 ### GCP
 
 Set up a GCP [load balancer](https://cloud.google.com/load-balancing/docs) and [Google Managed SSL Cert](https://cloud.google.com/load-balancing/docs/ssl-certificates/google-managed-certs), fowarding all traffic on ports 80 and 443 to your Mockaroo app instance(s).
+
+### Azure
+
+1. Create a public-facing [Azure Application Gateway](https://learn.microsoft.com/en-us/azure/application-gateway/overview) (v2 SKU recommended).
+2. Add your Mockaroo app instance(s) as a backend pool (VMs, VMSS, or private IP targets).
+3. Create HTTP (80) and HTTPS (443) listeners and route both to the Mockaroo backend pool.
+4. Upload or reference your TLS certificate for the HTTPS listener (for example, from Azure Key Vault).
+5. Configure hostnames for `(your-mockaroo-domain)`, `my.api.(your-mockaroo-domain)`, and `api.(your-mockaroo-domain)` so the certificate covers all three domains.
+6. Create DNS records in Azure DNS (or your DNS provider): point `(your-mockaroo-domain)` to the Application Gateway public IP (A record), and create `my.api` and `api` CNAME records pointing to `(your-mockaroo-domain)`.
 
 ## Limiting Sign Ups to Certain Email Domains
 
@@ -458,4 +515,3 @@ You can mount these as local volumes using docker compose like so:
 ## Upgrades
 
 When an upgrade is available, [pull the latest mockaroo-enterprise docker image](https://github.com/mockaroo/mockaroo-enterprise#pulling-the-image-from-amazon-ecr), then simply redeploy your app and worker containers. Any database schema changes are automatically applied when Mockaroo starts.
-
